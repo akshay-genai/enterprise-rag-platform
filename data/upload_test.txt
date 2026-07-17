@@ -1,0 +1,1 @@
+This project is an enterprise RAG platform for document question answering. It uses FastAPI, ChromaDB, HuggingFace embeddings, and Ollama.

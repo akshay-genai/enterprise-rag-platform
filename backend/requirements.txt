@@ -1,0 +1,45 @@
+# FastAPI
+fastapi
+uvicorn[standard]
+
+# LangChain
+langchain
+langchain-community
+langchain-core
+
+# Vector Database
+chromadb
+langchain-chroma
+
+# Embeddings
+sentence-transformers
+langchain-huggingface
+
+# LLM
+langchain-ollama
+ollama
+
+# Document Loaders
+pypdf
+python-docx
+unstructured
+
+# Environment Variables
+python-dotenv
+
+# Data Validation
+pydantic
+
+# Utilities
+numpy
+pandas
+
+# API Requests
+httpx
+
+# Logging
+loguru
+
+# Testing
+pytest
+pytest-asyncio
