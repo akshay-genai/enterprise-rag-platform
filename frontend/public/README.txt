@@ -1,0 +1,1 @@
+This folder is intentionally empty to support static assets for the frontend.
