@@ -9,17 +9,29 @@ on:
 
 jobs:
   deploy-production:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && secrets.RENDER_DEPLOY_HOOK_URL != ''
     runs-on: ubuntu-latest
     steps:
       - name: Trigger Render deploy hook
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
         run: |
-          curl -fsS -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
+          if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
+            echo "RENDER_DEPLOY_HOOK_URL is not configured. Skipping deploy."
+            exit 0
+          fi
+          curl -fsS -X POST "$RENDER_DEPLOY_HOOK_URL"
 
   deploy-staging:
-    if: github.ref == 'refs/heads/develop'
+    if: github.ref == 'refs/heads/develop' && secrets.RENDER_DEPLOY_HOOK_URL_DEVELOP != ''
     runs-on: ubuntu-latest
     steps:
       - name: Trigger Render staging deploy hook
+        env:
+          RENDER_DEPLOY_HOOK_URL_DEVELOP: ${{ secrets.RENDER_DEPLOY_HOOK_URL_DEVELOP }}
         run: |
-          curl -fsS -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL_DEVELOP }}"
+          if [ -z "$RENDER_DEPLOY_HOOK_URL_DEVELOP" ]; then
+            echo "RENDER_DEPLOY_HOOK_URL_DEVELOP is not configured. Skipping deploy."
+            exit 0
+          fi
+          curl -fsS -X POST "$RENDER_DEPLOY_HOOK_URL_DEVELOP"
