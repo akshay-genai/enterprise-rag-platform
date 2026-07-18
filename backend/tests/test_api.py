@@ -19,3 +19,18 @@ def test_chat_endpoint_returns_answer_shape() -> None:
     assert response.status_code == 200
     payload = response.json()
     assert "answer" in payload
+
+
+def test_feedback_endpoint_accepts_payload() -> None:
+    response = client.post(
+        "/feedback",
+        json={
+            "query": "What is this project?",
+            "response": "An enterprise RAG platform.",
+            "rating": 5,
+            "comments": "Helpful answer",
+        },
+    )
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["status"] == "saved"
