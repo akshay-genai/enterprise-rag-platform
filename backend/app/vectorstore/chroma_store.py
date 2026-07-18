@@ -6,7 +6,6 @@ from langchain_chroma import Chroma
 from langchain_core.documents import Document
 
 from app.core.config import settings
-from app.embeddings.embedding_service import embeddings
 
 logger = logging.getLogger(__name__)
 
@@ -15,13 +14,19 @@ class ChromaVectorStore:
     def __init__(self) -> None:
         self.client = None
         self._ready = False
-        self._initialize()
+        self._initializing = False
 
-    def _initialize(self) -> None:
+    def _ensure_ready(self) -> None:
+        if self._ready or self._initializing:
+            return
+
+        self._initializing = True
         try:
+            from app.embeddings.embedding_service import EmbeddingService
+
             self.client = Chroma(
-                collection_name="enterprise_documents",
-                embedding_function=embeddings,
+                collection_name=settings.collection_name,
+                embedding_function=EmbeddingService.get_instance(),
                 persist_directory=str(settings.db_dir),
             )
             self._ready = True
@@ -32,9 +37,15 @@ class ChromaVectorStore:
             )
             self.client = None
             self._ready = False
+        finally:
+            self._initializing = False
 
     def add_documents(self, documents: list[dict]) -> None:
-        if not documents or not self._ready:
+        if not documents:
+            return
+
+        self._ensure_ready()
+        if not self._ready:
             return
 
         coerced_documents = [
@@ -44,6 +55,7 @@ class ChromaVectorStore:
         self.client.add_documents(coerced_documents)
 
     def similarity_search(self, question: str, k: int = 5) -> list:
+        self._ensure_ready()
         if not self._ready:
             return []
 
@@ -54,11 +66,13 @@ class ChromaVectorStore:
             return []
 
     def get_document_count(self) -> int:
+        self._ensure_ready()
         if not self._ready:
             return 0
         return int(self.client._collection.count())
 
     def delete_documents(self, ids: list[str] | None = None) -> None:
+        self._ensure_ready()
         if not self._ready:
             return
 
