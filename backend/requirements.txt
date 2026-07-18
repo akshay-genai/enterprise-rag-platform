@@ -40,6 +40,9 @@ httpx
 # Logging
 loguru
 
+# PostgreSQL
+psycopg[binary]
+
 # Testing
 pytest
 pytest-asyncio
