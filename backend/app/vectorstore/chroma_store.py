@@ -26,7 +26,10 @@ class ChromaVectorStore:
         self.client.add_documents(coerced_documents)
 
     def similarity_search(self, question: str, k: int = 5) -> list:
-        return self.client.similarity_search(question, k=k)
+        try:
+            return self.client.similarity_search(question, k=k)
+        except Exception:
+            return []
 
     def get_document_count(self) -> int:
         return int(self.client._collection.count())
