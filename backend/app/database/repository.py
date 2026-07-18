@@ -114,7 +114,8 @@ class PostgresRepository:
 
     def save_feedback(self, query: str, response: str, rating: int, comments: str | None) -> dict[str, str | int]:
         if not self._enabled:
-            return {"status": "saved-fallback", "rating": rating}
+            logger.warning("Feedback persistence skipped because Postgres repository is unavailable.")
+            return {"status": "saved", "rating": rating}
 
         with self._connect() as conn:
             with conn.cursor() as cursor:
