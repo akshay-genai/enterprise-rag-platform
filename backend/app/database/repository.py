@@ -1,8 +1,12 @@
 from __future__ import annotations
 
+import logging
+
 import psycopg
 
 from app.core.config import settings
+
+logger = logging.getLogger(__name__)
 
 
 class PostgresRepository:
@@ -45,19 +49,35 @@ class PostgresRepository:
             "user": settings.postgres_user,
             "password": settings.postgres_password,
         }
+        self._enabled = True
+        self._disabled_reason: str | None = None
         self.init_schema()
 
     def _connect(self):
+        if not self._enabled:
+            raise RuntimeError(self._disabled_reason or "Postgres repository is unavailable")
+
         if settings.postgres_dsn:
             return psycopg.connect(settings.postgres_dsn)
         return psycopg.connect(**self._connection_kwargs)
 
     def init_schema(self) -> None:
-        with self._connect() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(self._schema_sql)
+        try:
+            with self._connect() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(self._schema_sql)
+        except Exception as exc:
+            self._enabled = False
+            self._disabled_reason = f"Postgres unavailable: {exc}"
+            logger.warning(
+                "Postgres repository disabled during startup; chat persistence will be skipped. Reason: %s",
+                exc,
+            )
 
     def create_or_get_conversation(self, session_id: str | None) -> int:
+        if not self._enabled:
+            return 0
+
         if not session_id:
             session_id = "default-session"
 
@@ -79,6 +99,9 @@ class PostgresRepository:
                 return int(result[0])
 
     def add_message(self, conversation_id: int, role: str, content: str) -> None:
+        if not self._enabled:
+            return
+
         with self._connect() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
@@ -90,6 +113,9 @@ class PostgresRepository:
                 )
 
     def save_feedback(self, query: str, response: str, rating: int, comments: str | None) -> dict[str, str | int]:
+        if not self._enabled:
+            return {"status": "saved-fallback", "rating": rating}
+
         with self._connect() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
