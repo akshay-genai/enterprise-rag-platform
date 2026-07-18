@@ -77,11 +77,26 @@ target/
 profile_default/
 ipython_config.py
 
-# Environment files
+# Environment files and local secrets
 .env
 .env.*
 !.env.example
 .envrc
+.env.local
+.env.development
+.env.production
+.env.test
+*.pem
+*.key
+*.crt
+*.cer
+*.p12
+*.pfx
+*.jks
+*.secret
+*.token
+credentials*.json
+secrets*.json
 .venv/
 env/
 venv/

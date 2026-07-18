@@ -6,7 +6,10 @@ from app.retrieval.retriever import retrieve
 
 
 def generate_answer(question: str) -> dict[str, Any]:
-    docs = retrieve(question, k=8)
+    try:
+        docs = retrieve(question, k=8)
+    except Exception:
+        docs = []
 
     if not docs:
         return {

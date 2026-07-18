@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import chatApi from '../api/chatApi';
 
-export default function useChat() {
+export default function useChat(sessionId) {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -13,7 +13,7 @@ export default function useChat() {
     setError('');
 
     try {
-      const response = await chatApi.ask(question);
+      const response = await chatApi.ask(question, sessionId);
       const assistantMessage = {
         id: Date.now() + 1,
         role: 'assistant',
