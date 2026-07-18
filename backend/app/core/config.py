@@ -18,7 +18,9 @@ class Settings:
     db_dir = project_root / "db"
     collection_name = "enterprise_documents"
     model_name = "BAAI/bge-small-en-v1.5"
-    llm_model = "llama3.2:1b"
+    embedding_model = os.getenv("EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
+    llm_model = os.getenv("OLLAMA_MODEL", "llama3.2:1b")
+    ollama_base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
 
     postgres_host = os.getenv("POSTGRES_HOST", "localhost")
     postgres_port = int(os.getenv("POSTGRES_PORT", "5432"))
